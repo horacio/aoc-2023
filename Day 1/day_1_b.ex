@@ -1,0 +1,56 @@
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/Day 1/day_1_input_1.txt")
+
+number_names = %{
+  one: "1",
+  two: "2",
+  three: "3",
+  four: "4",
+  five: "5",
+  six: "6",
+  seven: "7",
+  eight: "8",
+  nine: "9"
+}
+
+maybe_cast_value = fn x ->
+  Map.get(number_names, String.to_atom(x), x)
+end
+
+find_first_and_last_number = fn str ->
+  s_number_names = Enum.map(Map.keys(number_names), fn name -> Atom.to_string(name) end)
+
+  str
+  # Split the string into graphemes
+  |> String.graphemes()
+  |> Enum.reduce({nil, "", nil}, fn char, {first_match, current, last_match} ->
+    new_current = current <> char
+
+    match =
+      if Regex.match?(~r/\d/, char),
+        do: char,
+        else: Enum.find(s_number_names, &String.ends_with?(new_current, &1))
+
+    new_first_match = if first_match, do: first_match, else: match
+    new_last_match = if match, do: match, else: last_match
+
+    {new_first_match, new_current, new_last_match}
+  end)
+  # Extract the first and last match
+  |> (fn {first, _, last} -> [first, last] end).()
+end
+
+contents
+|> String.split(~r/\n/)
+|> Enum.map(fn str -> find_first_and_last_number.(str) end)
+|> Enum.reject(fn ls -> List.first(ls) == nil or List.last(ls) == nil end)
+|> Enum.map(fn ls ->
+  [maybe_cast_value.(List.first(ls)), maybe_cast_value.(List.last(ls))]
+end)
+|> Enum.map(fn l -> Enum.join(l) end)
+|> Enum.map(fn n ->
+  case Integer.parse(n) do
+    {int, _rest} -> int
+    _ -> 0
+  end
+end)
+|> Enum.sum()
