@@ -12,38 +12,38 @@ defmodule ParsingHelper do
     |> Regex.named_captures(game)
   end
 
-  def parse_game_sets(game) do
+  def parse_games(game) do
     res = parse_game_id(game)
 
     sets =
       game
       |> String.split(";")
       |> Enum.map(&String.trim/1)
-      |> Enum.map(fn set ->
-        Regex.scan(~r/(?<quantity>\d+)\s+(?<color>\w+)/, set)
-        |> Enum.reduce(%{}, fn [_match, quantity, color], acc ->
-          Map.put(acc, String.to_atom(color), String.to_integer(quantity))
-        end)
-      end)
+      |> Enum.map(&parse_sets/1)
 
     Map.put(res, "sets", sets)
   end
 
-  def calculate(%{"sets" => sets} = _game) do
+  defp parse_sets(set) do
+    Regex.scan(~r/(?<quantity>\d+)\s+(?<color>\w+)/, set)
+    |> Enum.reduce(%{}, fn [_match, quantity, color], acc ->
+      Map.put(acc, String.to_atom(color), String.to_integer(quantity))
+    end)
+  end
+
+  def game_is_possible?(%{"sets" => sets}) do
     Enum.all?(sets, fn set ->
-      Enum.all?(Map.keys(set), fn k ->
-        Map.get(set, k) <= Map.get(@max_values, k)
+      Enum.all?(set, fn {key, value} ->
+        value <= Map.get(@max_values, key)
       end)
     end)
   end
 end
 
 contents
-|> String.split(~r/\n/)
-|> Enum.reverse()
-|> tl()
-|> Enum.reverse()
-|> Enum.map(&ParsingHelper.parse_game_sets/1)
-|> Enum.filter(&ParsingHelper.calculate/1)
-|> Enum.map(fn game -> String.to_integer(Map.get(game, "id")) end)
+|> String.trim_trailing()
+|> String.split("\n")
+|> Enum.map(&ParsingHelper.parse_games/1)
+|> Enum.filter(&ParsingHelper.game_is_possible?/1)
+|> Enum.map(&String.to_integer(Map.get(&1, "id")))
 |> Enum.sum()
