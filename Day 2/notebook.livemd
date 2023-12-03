@@ -1,0 +1,109 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# AoC: Day 2
+
+## Part I - Exploring
+
+```elixir
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/Day 2/input.txt")
+
+defmodule Day2Helper do
+  @color_max_values %{
+    red: 12,
+    green: 13,
+    blue: 14
+  }
+
+  def parse_games(game) do
+    game
+    |> String.split(";")
+    |> Enum.map(fn set ->
+      Regex.scan(~r/(?<quantity>\d+)\s+(?<color>\w+)/, set)
+      |> Enum.map(fn [_, quantity, color] -> %{quantity: quantity, color: color} end)
+      |> Enum.reduce(%{}, fn %{color: color, quantity: quantity}, acc ->
+        Map.put(acc, String.to_atom(color), String.to_integer(quantity))
+      end)
+    end)
+  end
+
+  def game_possible?(game) do
+    Enum.all?(game, fn set ->
+      Enum.all?(Map.keys(set), fn k ->
+        Map.get(set, k) <= Map.get(@color_max_values, k)
+      end)
+    end)
+  end
+end
+
+contents
+|> String.split(~r/\n/)
+|> Enum.map(&Day2Helper.parse_games/1)
+|> Enum.filter(&Day2Helper.game_possible?/1)
+|> Enum.count()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+46
+```
+
+## Part I - Solution #1
+
+```elixir
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/Day 2/input.txt")
+
+defmodule ParsingHelper do
+  @max_values %{
+    red: 12,
+    green: 13,
+    blue: 14
+  }
+
+  defp parse_game_id(game) do
+    ~r/^Game \K(?<id>\d+)/
+    |> Regex.named_captures(game)
+  end
+
+  def parse_games(game) do
+    res = parse_game_id(game)
+
+    sets =
+      game
+      |> String.split(";")
+      |> Enum.map(&String.trim/1)
+      |> Enum.map(&parse_sets/1)
+
+    Map.put(res, "sets", sets)
+  end
+
+  defp parse_sets(set) do
+    Regex.scan(~r/(?<quantity>\d+)\s+(?<color>\w+)/, set)
+    |> Enum.reduce(%{}, fn [_match, quantity, color], acc ->
+      Map.put(acc, String.to_atom(color), String.to_integer(quantity))
+    end)
+  end
+
+  def game_is_possible?(%{"sets" => sets}) do
+    Enum.all?(sets, fn set ->
+      Enum.all?(set, fn {key, value} ->
+        value <= Map.get(@max_values, key)
+      end)
+    end)
+  end
+end
+
+contents
+|> String.trim_trailing()
+|> String.split("\n")
+|> Enum.map(&ParsingHelper.parse_games/1)
+|> Enum.filter(&ParsingHelper.game_is_possible?/1)
+|> Enum.map(&String.to_integer(Map.get(&1, "id")))
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+2204
+```
