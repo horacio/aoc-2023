@@ -1,4 +1,4 @@
-{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/Day 1/day_1_input_1.txt")
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/Day 1/input.txt")
 
 contents
 |> String.split(~r/\n/)

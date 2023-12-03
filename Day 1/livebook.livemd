@@ -1,4 +1,37 @@
-{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/Day 1/input.txt")
+<!-- livebook:{"persist_outputs":true} -->
+
+# AoC: Day 1
+
+## Part I
+
+```elixir
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/Day 1/day_1_input_1.txt")
+
+contents
+|> String.split(~r/\n/)
+|> Enum.map(fn s -> Regex.scan(~r/\d+/, s) end)
+|> Enum.map(&Enum.join/1)
+|> Enum.map(fn s -> [String.at(s, 0), String.at(s, -1)] end)
+|> Enum.map(fn l -> Enum.join(l) end)
+|> Enum.map(fn n ->
+  case Integer.parse(n) do
+    {int, _rest} -> int
+    _ -> 0
+  end
+end)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+55712
+```
+
+## Part II
+
+```elixir
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/Day 1/day_1_input_1.txt")
 
 number_names = %{
   one: "1",
@@ -54,3 +87,10 @@ end)
   end
 end)
 |> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+55413
+```
