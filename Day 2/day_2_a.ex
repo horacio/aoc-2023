@@ -7,7 +7,13 @@ defmodule ParsingHelper do
     blue: 14
   }
 
-  def parse_games(game) do
+  def get_possible_games(games) do
+    games
+    |> Enum.map(&parse_games/1)
+    |> Enum.filter(&game_is_possible?/1)
+  end
+
+  defp parse_games(game) do
     res = parse_game_id(game)
 
     sets =
@@ -31,7 +37,7 @@ defmodule ParsingHelper do
     end)
   end
 
-  def game_is_possible?(%{"sets" => sets}) do
+  defp game_is_possible?(%{"sets" => sets}) do
     Enum.all?(sets, fn set ->
       Enum.all?(set, fn {key, value} ->
         value <= Map.get(@max_values, key)
@@ -43,7 +49,6 @@ end
 contents
 |> String.trim_trailing()
 |> String.split("\n")
-|> Enum.map(&ParsingHelper.parse_games/1)
-|> Enum.filter(&ParsingHelper.game_is_possible?/1)
+|> ParsingHelper.get_possible_games()
 |> Enum.map(&String.to_integer(Map.get(&1, "id")))
 |> Enum.sum()
