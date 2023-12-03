@@ -7,11 +7,6 @@ defmodule ParsingHelper do
     blue: 14
   }
 
-  defp parse_game_id(game) do
-    ~r/^Game \K(?<id>\d+)/
-    |> Regex.named_captures(game)
-  end
-
   def parse_games(game) do
     res = parse_game_id(game)
 
@@ -22,6 +17,11 @@ defmodule ParsingHelper do
       |> Enum.map(&parse_sets/1)
 
     Map.put(res, "sets", sets)
+  end
+
+  defp parse_game_id(game) do
+    ~r/^Game \K(?<id>\d+)/
+    |> Regex.named_captures(game)
   end
 
   defp parse_sets(set) do
