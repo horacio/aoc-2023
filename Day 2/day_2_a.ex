@@ -9,11 +9,24 @@ defmodule ParsingHelper do
 
   def get_possible_games(games) do
     games
-    |> Enum.map(&parse_games/1)
+    |> Enum.map(&parse_game/1)
     |> Enum.filter(&game_is_possible?/1)
   end
 
-  defp parse_games(game) do
+  def get_fewest_possible_cubes(games) do
+    games
+    |> Enum.map(&parse_game/1)
+    |> Enum.map(&Map.get(&1, "sets"))
+    |> Enum.map(fn list ->
+      Enum.reduce(list, %{}, fn m, acc ->
+        Map.merge(acc, m, fn _k, v1, v2 ->
+          if v2 > v1, do: v2, else: v1
+        end)
+      end)
+    end)
+  end
+
+  def parse_game(game) do
     res = parse_game_id(game)
 
     sets =
@@ -25,19 +38,19 @@ defmodule ParsingHelper do
     Map.put(res, "sets", sets)
   end
 
-  defp parse_game_id(game) do
+  def parse_game_id(game) do
     ~r/^Game \K(?<id>\d+)/
     |> Regex.named_captures(game)
   end
 
-  defp parse_sets(set) do
+  def parse_sets(set) do
     Regex.scan(~r/(?<quantity>\d+)\s+(?<color>\w+)/, set)
     |> Enum.reduce(%{}, fn [_match, quantity, color], acc ->
       Map.put(acc, String.to_atom(color), String.to_integer(quantity))
     end)
   end
 
-  defp game_is_possible?(%{"sets" => sets}) do
+  def game_is_possible?(%{"sets" => sets}) do
     Enum.all?(sets, fn set ->
       Enum.all?(set, fn {key, value} ->
         value <= Map.get(@max_values, key)
@@ -49,6 +62,8 @@ end
 contents
 |> String.trim_trailing()
 |> String.split("\n")
-|> ParsingHelper.get_possible_games()
-|> Enum.map(&String.to_integer(Map.get(&1, "id")))
+|> ParsingHelper.get_fewest_possible_cubes()
+|> Enum.map(fn r ->
+  Enum.reduce(Map.values(r), 1, fn x, acc -> x * acc end)
+end)
 |> Enum.sum()
