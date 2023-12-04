@@ -25,9 +25,11 @@ defmodule MatrixHelper do
       if is_valid_position?(matrix, new_i, new_j) do
         adjacent_value = get_value(matrix, new_i, new_j)
 
-        case Integer.parse(adjacent_value) do
-          {number, _} -> IO.inspect(number, label: "Number is")
-          :error -> nil
+        if not is_nil(adjacent_value) do
+          case Integer.parse(adjacent_value) do
+            {number, _} -> IO.inspect(number)
+            :error -> nil
+          end
         end
       end
     end)
@@ -37,18 +39,19 @@ defmodule MatrixHelper do
     i in 0..(length(matrix) - 1) and j in 0..(length(matrix) - 1)
   end
 
-  def get_value(matrix, i, j) do
+  defp get_value(matrix, i, j) do
     Enum.at(Enum.at(matrix, i), j)
   end
 end
 
-{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/Day 3/input.txt")
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/day_3/test.txt")
 
 contents
 |> String.trim_trailing()
 |> String.split("\n")
 |> Enum.map(fn line ->
-  Regex.scan(~r/[*&@+#$%=.-]|\d+/, line)
+  Regex.scan(~r/[*&@+#$%=.-]|\d/, line)
   |> Enum.map(fn [match] -> match end)
 end)
-|> MatrixHelper.process_matrix()
+
+# |> MatrixHelper.process_matrix()
