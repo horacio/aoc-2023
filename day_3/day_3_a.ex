@@ -44,14 +44,25 @@ defmodule MatrixHelper do
   end
 end
 
-{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/day_3/test.txt")
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/day_3/input.txt")
 
 contents
 |> String.trim_trailing()
 |> String.split("\n")
 |> Enum.map(fn line ->
-  Regex.scan(~r/[*&@+#$%=.-]|\d/, line)
+  Regex.scan(~r/[*&@+#$%=.-]|\d+/, line)
   |> Enum.map(fn [match] -> match end)
 end)
+|> Enum.reduce([], fn sublist, acc ->
+  acc ++
+    Enum.flat_map(sublist, fn el ->
+      case Integer.parse(el) do
+        {_number, _} -> Enum.map(1..String.length(el), fn _ -> el end)
+        :error -> [el]
+      end
+    end)
+end)
+|> Enum.chunk_every(10)
+|> MatrixHelper.process_matrix()
 
-# |> MatrixHelper.process_matrix()
+# => 191688
