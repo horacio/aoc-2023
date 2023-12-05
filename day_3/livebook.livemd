@@ -45,7 +45,7 @@ defmodule MatrixHelper do
   end
 end
 
-{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/day_3/input.txt")
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/day_3/test.txt")
 
 contents
 |> String.trim_trailing()
