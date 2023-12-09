@@ -24,15 +24,18 @@ defmodule MatrixHelper do
         adjacent_value = get_value(matrix, new_i, new_j)
 
         case Integer.parse(adjacent_value) do
-          {number, _} -> IO.inspect(number)
-          :error -> nil
+          {number, _} ->
+            File.write("/Users/kappa/Code/Elixir/AoC/day_3/result.txt", number)
+
+          :error ->
+            nil
         end
       end
     end)
   end
 
   defp is_valid_position?(matrix, i, j) do
-    i in 0..(length(matrix) - 1) and j in 0..9
+    i in 0..(length(matrix) - 1) and j in 0..139
   end
 
   defp get_value(matrix, i, j) do
@@ -40,7 +43,7 @@ defmodule MatrixHelper do
   end
 end
 
-{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/day_3/test.txt")
+{:ok, contents} = File.read("/Users/kappa/Code/Elixir/AoC/day_3/input.txt")
 
 contents
 |> String.trim_trailing()
@@ -58,5 +61,5 @@ end)
       end
     end)
 end)
-|> Enum.chunk_every(10)
+|> Enum.chunk_every(140)
 |> MatrixHelper.process_matrix()
