@@ -10,12 +10,16 @@ defmodule MatrixHelper do
   def process_matrix(matrix) do
     Enum.with_index(matrix, fn row, i ->
       Enum.with_index(row, fn value, j ->
-        if String.contains?(@symbols, value), do: process_cell(matrix, i, j)
+        if String.contains?(@symbols, value) do
+          process_cell(matrix, i, j)
+        end
       end)
     end)
   end
 
   defp process_cell(matrix, i, j) do
+    ms = MapSet.new()
+
     Enum.each(0..(length(@dx) - 1), fn k ->
       new_i = i + Enum.at(@dx, k)
       new_j = j + Enum.at(@dy, k)
@@ -25,12 +29,16 @@ defmodule MatrixHelper do
 
         case Integer.parse(adjacent_value) do
           {number, _} ->
-            File.write("/Users/kappa/Code/Elixir/AoC/day_3/result.txt", number)
+            MapSet.put(ms, number)
 
           :error ->
             nil
         end
       end
+    end)
+
+    Enum.each(ms.to_list, fn x ->
+      IO.puts(x)
     end)
   end
 
@@ -63,3 +71,7 @@ end)
 end)
 |> Enum.chunk_every(140)
 |> MatrixHelper.process_matrix()
+
+# Non-Uniq: 490696
+# Non-Uniq: 303879
+# Jero's: 523145
