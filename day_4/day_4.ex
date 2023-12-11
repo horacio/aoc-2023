@@ -13,9 +13,11 @@ contents
   |> Enum.map(&String.split/1)
 end)
 |> Enum.map(fn [winner_numbers, possible_winner_numbers] ->
+  winner_numbers_set = MapSet.new(winner_numbers)
+
   matches =
     Enum.count(possible_winner_numbers, fn x ->
-      Enum.member?(winner_numbers, x)
+      Enum.member?(winner_numbers_set, x)
     end)
 
   if matches > 1, do: :math.pow(2, matches - 1), else: matches
